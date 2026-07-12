@@ -15,6 +15,7 @@
 package proxy
 
 import (
+	"crypto/tls"
 	"errors"
 	"io"
 	"net/http"
@@ -104,6 +105,10 @@ func NewUpstreamTransport(enableKeepAlive bool) *http.Transport {
 		MaxIdleConns:          DefaultMaxIdleConns,
 		IdleConnTimeout:       DefaultIdleConnTimeout,
 		DisableCompression:    false,
+		// Disable HTTP/2: upstream mirrors use plain HTTP/1.1.
+		// HTTP/2 HPACK encoder has a known race that panics under
+		// concurrent use (golang/go#70380).
+		TLSNextProto: make(map[string]func(string, *tls.Conn) http.RoundTripper),
 	}
 }
 
