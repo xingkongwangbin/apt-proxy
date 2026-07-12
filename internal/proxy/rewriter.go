@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 	"sync"
 
 	logger "github.com/soulteary/logger-kit"
@@ -355,7 +356,13 @@ func RewriteRequestByMode(r *http.Request, rewriters *URLRewriters, mode int) {
 
 	r.URL.Scheme = rewriter.mirror.Scheme
 	r.URL.Host = rewriter.mirror.Host
-	r.URL.Path = rewriter.mirror.Path + unescapedQuery
+
+	mirrorPath := rewriter.mirror.Path
+	// For Debian security archive: adjust /debian/ → /debian-security/
+	if len(matches) >= 2 && matches[1] == "-security" {
+		mirrorPath = strings.TrimRight(mirrorPath, "/") + "-security/"
+	}
+	r.URL.Path = mirrorPath + unescapedQuery
 }
 
 // MatchingRule finds a matching rule for the given path

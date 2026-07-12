@@ -342,6 +342,7 @@ func (ap *PackageStruct) processMatchingRule(r *http.Request, rules []distro.Rul
 	}
 
 	r.Header.Del("Cache-Control")
+	r.Header.Del("Range")
 	if rule.Rewrite {
 		ap.rewriteRequest(r, rule)
 	}
